@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Board.h>
+#include <AiAdvSearch.h>
 
 using namespace std;
 
@@ -7,6 +7,7 @@ class ConnectFour
 {
 private:
     Board* gameBoard;
+    AiAdvSearch* ai;
     int gameMode;
     int turn;
     int winner;
@@ -21,12 +22,17 @@ public:
     ConnectFour();
 
     /**
-     * Starts the game using the command line interface
-     */
-    int startGameFromCmdLine();
-
-    /**
      * Handles a player turn
      */
     int handlePlayerTurn(int player);
+
+    /**
+     * Handles the Ai's turn
+     */
+    int handleAiTurn(int player);
+
+    /**
+     * Starts the game using the command line interface
+     */
+    int startGameFromCmdLine();
 };

@@ -1,4 +1,3 @@
-#include <iostream>
 #include <Board.h>
 
 using namespace std;
@@ -12,7 +11,22 @@ Board::Board()
             boardArray[i][j] = EMPTY_SLOT;
         }
     }
+    lastPlayedX = -1;
+    lastPlayedY = -1;
 }
+
+Board::Board(Board* temp) {
+    for (int i = 0; i < 6; i++)
+    {
+        for (int j = 0; j < 7; j++)
+        {
+            boardArray[i][j] = temp->getPlayerAt(j, i);
+        }
+    }
+    lastPlayedX = -1;
+    lastPlayedY = -1;
+}
+
 
 bool Board::validMove(int x, int y, int player)
 {
@@ -32,6 +46,17 @@ bool Board::validMove(int x, int y, int player)
     }
 
     return true;
+}
+
+int Board::getValidRowInCol(int col, int player) {
+    int validRow = -1;
+    for (int j = 0; j < 7; j++) {
+        if (validMove(col, j, player)) {
+            validRow = j;
+        }
+    }
+
+    return validRow;
 }
 
 bool Board::onBoard(int x, int y)
@@ -82,17 +107,29 @@ bool Board::checkVictoryAt(int x, int y, int player)
                 }
             }
         }
-    }
-
-    for (int i = 0; i < 9; i++)
-    {
-        if (won[i] == true && i != 4)
+        for (int i = 0; i < 9; i++)
         {
-            return true;
+            if (won[i] == true && i != 4)
+            {
+                return true;
+            }
         }
     }
 
     return false;
+}
+
+bool Board::boardIsFull() {
+    for (int i = 0; i < 6; i++)
+    {
+        for (int j = 0; j < 7; j++)
+        {
+            if (boardArray[i][j] == EMPTY_SLOT) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 int Board::getPlayerAt(int x, int y)
@@ -103,6 +140,15 @@ int Board::getPlayerAt(int x, int y)
 int Board::setPlayerAt(int x, int y, int player)
 {
     boardArray[y][x] = player;
+    lastPlayedX = x;
+    lastPlayedY = y;
+    return 0;
+}
+
+int Board::setPlayerInCol(int col, int player)
+{
+    int row = getValidRowInCol(col, player);
+    setPlayerAt(col, row, player);
     return 0;
 }
 
@@ -110,6 +156,29 @@ char Board::getPlayerPiece(int player)
 {
     return piece[player];
 }
+
+int Board::getOtherPlayer(int player)
+{
+    if (player == RED_PLAYER) {
+        return YELLOW_PLAYER;
+    } else if (player == YELLOW_PLAYER) {
+        return RED_PLAYER;
+    } else {
+        return -1;
+    }
+}
+
+
+int Board::getBoardWidth() {
+    return BOARD_WIDTH;
+}
+
+int Board::getBoardHeight() {
+    return BOARD_HEIGHT;
+}
+
+
+
 
 int Board::printBoardOnCmdLine()
 {
@@ -137,4 +206,6 @@ int Board::printBoardOnCmdLine()
     }
     cout << endl
          << endl;
+
+    return 0;
 }

@@ -1,23 +1,44 @@
 #include <ConnectFour.h>
-#include <Board.h>
 
 using namespace std;
 
 ConnectFour::ConnectFour()
 {
     gameBoard = new Board();
-    turn = gameBoard->RED_PLAYER;
+    ai = new AiAdvSearch();
     winner = 0;
 }
 
 int ConnectFour::handlePlayerTurn(int player) {
-    bool validMove = false;
     int col = -1;
+    int validRow = -1;
 
-    while (!validMove) {
+    while (validRow == -1) {
         cout << "Player " << player << ", please select the column you would like to place your piece: ";
         cin >> col;
+        validRow = gameBoard->getValidRowInCol(col, player);
     }
+
+    gameBoard->setPlayerAt(col, validRow, player);
+
+    if (gameBoard->playerWon(player)) {
+        winner = player;
+    }
+
+    return 0;
+}
+
+int ConnectFour::handleAiTurn(int player) {
+    int col = ai->searchBestMove(player, gameBoard);
+    cout << "AI Moved: " << col << endl;
+    int row = gameBoard->getValidRowInCol(col, player);
+    gameBoard->setPlayerAt(col, row, player);
+
+    if (gameBoard->playerWon(player)) {
+        winner = player;
+    }
+
+    return 0;
 }
 
 int ConnectFour::startGameFromCmdLine()
@@ -39,21 +60,27 @@ int ConnectFour::startGameFromCmdLine()
     else if (gameMode == PVAIMODE)
     {
         cout << "Player 1, You will be 'O'" << endl;
-    } else {
-        return 1;
+        ai = new AiAdvSearch();
     }
 
     gameBoard->printBoardOnCmdLine();
 
     while (winner == 0) {
         handlePlayerTurn(gameBoard->RED_PLAYER);
-        if (gameMode == PVPMODE) {
+        if (gameMode == PVPMODE && winner == 0) {
+            gameBoard->printBoardOnCmdLine();
             handlePlayerTurn(gameBoard->YELLOW_PLAYER);
-        } else if (gameMode == PVAIMODE) {
-            
+            gameBoard->printBoardOnCmdLine();
+        } else if (gameMode == PVAIMODE && winner == 0) {
+            //TODO: IMPLEMENT AI
+            handleAiTurn(gameBoard->YELLOW_PLAYER);
+            gameBoard->printBoardOnCmdLine();
         }
         
+        
     }
+
+    cout << "Congrats Player " << winner << ", YOU WON!!!" << endl;
 
     return 0;
 }
